@@ -1,51 +1,48 @@
 #!/usr/bin/env python3
 import itertools
-from pprint import pprint
 
-def calc_intcode(codes):
-    for r in range(0, len(codes), 4):
-        val = codes[r]
-        position = codes[r+3]
+
+def calc_intcode(codes, noun=None, verb=None):
+    """
+    calculate intcode
+    """
+    codes = codes.copy()
+    if noun:
+        codes[1] = noun
+
+    if verb:
+        codes[2] = verb
+
+    for idx in range(0, len(codes), 4):
         try:
-            if val == 1:
-                res = codes[codes[r+1]] + codes[codes[r+2]]
-                codes[position] = res
-            elif val == 2:
-                res = codes[codes[r+1]] * codes[codes[r+2]]
-                codes[position] = res
-            elif val == 99:
+            if codes[idx] == 99:
                 break
+            v1 = codes[codes[idx+1]]
+            v2 = codes[codes[idx+2]]
+            position = codes[idx+3]
+            if codes[idx] == 1:
+                codes[position] = v1 + v2
+            elif codes[idx] == 2:
+                codes[position] = v1 * v2
         except IndexError:
             break
 
-    return codes
-
-
-def gravity_assist(codes, noun, verb):
-    codes[1] = noun
-    codes[2] = verb
-    return calc_intcode(codes)
+    return codes[0]
 
 
 def main():
+    """
+    main
+    """
     with open('input.txt') as fp:
-        opcodes = [int(f) for f in fp.read().split(',')]
+        codes = [int(f) for f in fp.read().split(',')]
 
-    part1 = opcodes.copy()
-    # fixup list
-    part1[1] = 12
-    part1[2] = 2
-    result = calc_intcode(part1)
-    print(result)
-    print(result[0])
+    print(f'part 1: {calc_intcode(codes, 12, 2)}')
 
-    for noun, verb in itertools.product(range(0,100), range(0,100)):
-        codes = opcodes.copy()
-        val = gravity_assist(codes, noun, verb)
-        if val[0] == 19690720:
-            print('found it!')
-            print('noun = {}, verb = {}'.format(noun, verb))
-            print(100*noun + verb)
+    for noun, verb in itertools.product(range(100), range(100)):
+        if calc_intcode(codes, noun, verb) == 19690720:
+            print(f'part 2: noun={noun} verb={verb} result={100*noun+verb}')
+            break
 
 
 if __name__ == '__main__':

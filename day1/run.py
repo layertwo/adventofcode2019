@@ -1,24 +1,35 @@
-#!/usr/bin/env/python3
+#!/usr/bin/env python3
 
 
-def calc_fuel(val):
-    return int(val/3)-2
+def calc_fuel(data):
+    """
+    calc fuel
+    """
+    for val in data:
+        yield int(val/3)-2
 
-def fuel_mass(val):
-    output = 0
-    while True:
-        val = calc_fuel(val)
-        output += val
-        if not val > 6:
-            return output
+
+def fuel_mass(data):
+    """
+    fuel mass
+    """
+    for val in data:
+        output = 0
+        while True:
+            val = int(val/3)-2
+            output += val
+            if not val > 6:
+                yield output
+                output = 0
+                break
 
 
 def main():
     with open('input.txt') as fp:
-        data = fp.readlines()
+        data = [int(line) for line in fp.read().splitlines()]
 
-    print(sum([calc_fuel(int(l.strip())) for l in data]))
-    print(sum([fuel_mass(int(l.strip())) for l in data]))
+    print(sum(calc_fuel(data)))
+    print(sum(fuel_mass(data)))
 
 
 if __name__ == '__main__':
